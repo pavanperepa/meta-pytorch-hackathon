@@ -1,0 +1,2 @@
+[console_scripts]
+server = hack_meta.server.app:main
