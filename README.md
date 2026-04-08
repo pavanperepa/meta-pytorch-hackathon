@@ -119,11 +119,10 @@ Use [.env.example](/c:/Users/pavan/meta-pytorch-hackathon/.env.example) as the t
 
 ## Validation
 
-Package-level validation:
+Validate from repo root:
 
 ```powershell
-cd hack_meta
-.\.venv\Scripts\openenv.exe validate
+.\hack_meta\.venv\Scripts\openenv.exe validate .
 ```
 
 ## Docker
@@ -153,8 +152,7 @@ Expected endpoints:
 Run the server locally:
 
 ```powershell
-cd hack_meta
-.\.venv\Scripts\python.exe -m server.app
+.\hack_meta\.venv\Scripts\python.exe -m server.app
 ```
 
 Run the baseline from repo root:

@@ -23,8 +23,8 @@ from openai import OpenAI
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 sys.path.insert(0, os.path.dirname(__file__))
 
-from hack_meta.models import DisasterAction, DisasterObservation, ResourceAssignment
-from hack_meta.server.scene_catalog import DEFAULT_SCENE_ID, ordered_scene_ids
+from models import DisasterAction, DisasterObservation, ResourceAssignment
+from server.scene_catalog import DEFAULT_SCENE_ID, ordered_scene_ids
 
 API_BASE_URL: str = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME: str = os.getenv("MODEL_NAME", "gpt-5.4-mini")
@@ -364,7 +364,7 @@ def append_jsonl(path: Path, payload: Dict[str, Any]) -> None:
 
 class LocalEnvWrapper:
     def __init__(self) -> None:
-        from hack_meta.server.hack_meta_environment import DisasterResponseEnvironment
+        from server.hack_meta_environment import DisasterResponseEnvironment
 
         self._env = DisasterResponseEnvironment()
 
@@ -650,7 +650,7 @@ def main() -> None:
     if args.local:
         env: Any = LocalEnvWrapper()
     else:
-        from hack_meta.client import DisasterResponseEnv
+        from client import DisasterResponseEnv
 
         env = DisasterResponseEnv(base_url=SERVER_URL).sync()
 
