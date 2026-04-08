@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "openenv-hack_meta"
 version = "0.1.0"
-description = "Hack Meta environment for OpenEnv"
+description = "Disaster Response Coordination Environment for OpenEnv — EOC agent allocates teams across simultaneous incidents to minimise casualties"
 requires-python = ">=3.10"
 dependencies = [
     # Core OpenEnv runtime (provides FastAPI server + HTTP client types)
@@ -26,6 +26,7 @@ dependencies = [
     # "gymnasium>=0.29.0",
     # "openspiel>=1.0.0",
     # "smolagents>=1.22.0,<2",
+    "python-dotenv>=1.2.2",
 ]
 
 [project.optional-dependencies]

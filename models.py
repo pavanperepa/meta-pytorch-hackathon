@@ -1,6 +1,6 @@
-"""Disaster response scene ladder package exports."""
+"""Root-level model re-exports for OpenEnv submission compatibility."""
 
-from .models import (
+from hack_meta.models import (
     DisasterAction,
     DisasterObservation,
     DisasterReward,
@@ -9,11 +9,6 @@ from .models import (
     TargetStatus,
 )
 
-try:
-    from .client import DisasterResponseEnv
-except ImportError:  # pragma: no cover
-    DisasterResponseEnv = None  # type: ignore[assignment]
-
 __all__ = [
     "DisasterAction",
     "DisasterObservation",
@@ -21,5 +16,4 @@ __all__ = [
     "ResourceAssignment",
     "ResourceStatus",
     "TargetStatus",
-    "DisasterResponseEnv",
 ]

@@ -1,7 +1,24 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "pytorch-hf"
+name = "disaster-response-openenv"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-requires-python = ">=3.11"
-dependencies = []
+description = "OpenEnv disaster response coordination environment"
+requires-python = ">=3.10"
+dependencies = [
+    "openenv-core[core]>=0.2.2",
+    "python-dotenv>=1.2.2",
+    "openai>=1.0.0",
+]
+
+[project.scripts]
+server = "server.app:main"
+
+[tool.setuptools]
+py-modules = ["models", "client"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["hack_meta*", "server*"]

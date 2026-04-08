@@ -1,10 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
-#
-# This source code is licensed under the BSD-style license found in the
-# LICENSE file in the root directory of this source tree.
-
-"""Hack Meta Environment Client."""
+"""Disaster response scene ladder client."""
 
 from typing import Dict
 
@@ -12,68 +6,54 @@ from openenv.core import EnvClient
 from openenv.core.client_types import StepResult
 from openenv.core.env_server.types import State
 
-from .models import HackMetaAction, HackMetaObservation
+from .models import (
+    DisasterAction,
+    DisasterObservation,
+    ResourceStatus,
+    TargetStatus,
+)
 
 
-class HackMetaEnv(
-    EnvClient[HackMetaAction, HackMetaObservation, State]
-):
-    """
-    Client for the Hack Meta Environment.
+class DisasterResponseEnv(EnvClient[DisasterAction, DisasterObservation, State]):
+    """Client for the scene-based disaster response environment."""
 
-    This client maintains a persistent WebSocket connection to the environment server,
-    enabling efficient multi-step interactions with lower latency.
-    Each client instance has its own dedicated environment session on the server.
-
-    Example:
-        >>> # Connect to a running server
-        >>> with HackMetaEnv(base_url="http://localhost:8000") as client:
-        ...     result = client.reset()
-        ...     print(result.observation.echoed_message)
-        ...
-        ...     result = client.step(HackMetaAction(message="Hello!"))
-        ...     print(result.observation.echoed_message)
-
-    Example with Docker:
-        >>> # Automatically start container and connect
-        >>> client = HackMetaEnv.from_docker_image("hack_meta-env:latest")
-        >>> try:
-        ...     result = client.reset()
-        ...     result = client.step(HackMetaAction(message="Test"))
-        ... finally:
-        ...     client.close()
-    """
-
-    def _step_payload(self, action: HackMetaAction) -> Dict:
-        """
-        Convert HackMetaAction to JSON payload for step message.
-
-        Args:
-            action: HackMetaAction instance
-
-        Returns:
-            Dictionary representation suitable for JSON encoding
-        """
+    def _step_payload(self, action: DisasterAction) -> Dict:
         return {
-            "message": action.message,
+            "assignments": [
+                {
+                    "resource_id": assignment.resource_id,
+                    "target_id": assignment.target_id,
+                }
+                for assignment in action.assignments
+            ]
         }
 
-    def _parse_result(self, payload: Dict) -> StepResult[HackMetaObservation]:
-        """
-        Parse server response into StepResult[HackMetaObservation].
-
-        Args:
-            payload: JSON response data from server
-
-        Returns:
-            StepResult with HackMetaObservation
-        """
+    def _parse_result(self, payload: Dict) -> StepResult[DisasterObservation]:
         obs_data = payload.get("observation", {})
-        observation = HackMetaObservation(
-            echoed_message=obs_data.get("echoed_message", ""),
-            message_length=obs_data.get("message_length", 0),
+
+        targets = {
+            target_id: TargetStatus(**target_data)
+            for target_id, target_data in obs_data.get("targets", {}).items()
+        }
+        resources = {
+            resource_id: ResourceStatus(**resource_data)
+            for resource_id, resource_data in obs_data.get("resources", {}).items()
+        }
+
+        observation = DisasterObservation(
+            scene_id=obs_data.get("scene_id", ""),
+            scene_name=obs_data.get("scene_name", ""),
+            level=obs_data.get("level", 0),
+            narrative=obs_data.get("narrative", ""),
+            targets=targets,
+            resources=resources,
+            resolved_count=obs_data.get("resolved_count", 0),
+            turn=obs_data.get("turn", 0),
+            max_turns=obs_data.get("max_turns", 0),
+            feedback=obs_data.get("feedback", ""),
+            final_score=obs_data.get("final_score"),
             done=payload.get("done", False),
-            reward=payload.get("reward"),
+            reward=payload.get("reward", 0.0),
             metadata=obs_data.get("metadata", {}),
         )
 
@@ -84,16 +64,10 @@ class HackMetaEnv(
         )
 
     def _parse_state(self, payload: Dict) -> State:
-        """
-        Parse server response into State object.
-
-        Args:
-            payload: JSON response from state request
-
-        Returns:
-            State object with episode_id and step_count
-        """
         return State(
             episode_id=payload.get("episode_id"),
             step_count=payload.get("step_count", 0),
+            scene_id=payload.get("scene_id"),
+            scene_name=payload.get("scene_name"),
+            level=payload.get("level"),
         )
